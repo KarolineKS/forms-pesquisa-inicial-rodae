@@ -322,9 +322,6 @@ function Welcome({ onStart }: { onStart: () => void }) {
 
       <div className="prize-card mb-10">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-[var(--accent)] mb-1.5">
-            Incentivo
-          </p>
           <p className="text-[1.5rem] md:text-[1.75rem] font-semibold leading-tight text-[var(--ink)] mb-1.5">
             Concorra a R$ 100 via PIX
           </p>
