@@ -62,7 +62,7 @@ export const QUESTIONS: Question[] = [
       { value: 'proprio_quitado', label: 'Próprio e quitado' },
       { value: 'proprio_financiado', label: 'Próprio mas ainda financiado' },
       { value: 'alugado_plataforma', label: 'Alugado de plataforma especializada (Kovi, Mottu, Localiza Meoo, etc)' },
-      { value: 'alugado_locadora', label: 'Alugado de locadora tradicional' },
+      { value: 'alugado_locadora', label: 'Alugado de locadora tradicional (Localiza, Movida, Unidas, etc)' },
       { value: 'alugado_particular', label: 'Alugado de pessoa particular (Facebook, indicação)' },
       { value: 'emprestado', label: 'Emprestado de família ou amigo' },
       { value: 'outro', label: 'Outro' },
