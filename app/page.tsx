@@ -61,6 +61,16 @@ export default function Page() {
     setTimeout(() => goNext(newAnswers), 240);
   }
 
+  function toggleMulti(qid: string, value: string) {
+    setAnswers((a) => {
+      const arr: string[] = Array.isArray(a[qid]) ? [...a[qid]] : [];
+      const idx = arr.indexOf(value);
+      if (idx >= 0) arr.splice(idx, 1);
+      else arr.push(value);
+      return { ...a, [qid]: arr };
+    });
+  }
+
   function selectScale(qid: string, value: number) {
     setAnswers((a) => ({ ...a, [qid]: value }));
   }
@@ -126,7 +136,12 @@ export default function Page() {
   }
 
   const isLast = q && findNextVisibleIndex(currentIndex + 1, answers) === -1;
-  const hasAnswer = q ? answers[q.id] !== undefined && answers[q.id] !== '' : false;
+  const val = q ? answers[q.id] : undefined;
+  const hasAnswer = q
+    ? q.type === 'multi'
+      ? Array.isArray(val) && val.length > 0
+      : val !== undefined && val !== ''
+    : false;
   const canProceed = q ? q.optional || hasAnswer : false;
 
   return (
@@ -177,6 +192,7 @@ export default function Page() {
                 q={q}
                 value={answers[q.id]}
                 onSelectOption={(value, blocking) => selectOption(q.id, value, blocking)}
+                onToggleMulti={(value) => toggleMulti(q.id, value)}
                 onSelectScale={(value) => selectScale(q.id, value)}
                 onChangeText={(value) => updateText(q.id, value)}
               />
@@ -222,12 +238,14 @@ function QuestionInput({
   q,
   value,
   onSelectOption,
+  onToggleMulti,
   onSelectScale,
   onChangeText,
 }: {
   q: Question;
   value: any;
   onSelectOption: (value: string, blocking?: boolean) => void;
+  onToggleMulti: (value: string) => void;
   onSelectScale: (value: number) => void;
   onChangeText: (value: string) => void;
 }) {
@@ -244,6 +262,34 @@ function QuestionInput({
               style={{ animation: `fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.035}s backwards` }}
             >
               <div className="indicator" />
+              <span className="text-[15px] leading-snug">{opt.label}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  if (q.type === 'multi') {
+    const selectedArr: string[] = Array.isArray(value) ? value : [];
+    return (
+      <div className="space-y-2">
+        {q.options!.map((opt, i) => {
+          const selected = selectedArr.includes(opt.value);
+          return (
+            <div
+              key={opt.value}
+              className={`option p-4 md:p-[18px] flex items-center gap-3.5 ${selected ? 'selected' : ''}`}
+              onClick={() => onToggleMulti(opt.value)}
+              style={{ animation: `fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.035}s backwards` }}
+            >
+              <div className="indicator-square">
+                {selected && (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </div>
               <span className="text-[15px] leading-snug">{opt.label}</span>
             </div>
           );
@@ -323,7 +369,7 @@ function Welcome({ onStart }: { onStart: () => void }) {
       <div className="prize-card mb-10">
         <div>
           <p className="text-[1.5rem] md:text-[1.75rem] font-semibold leading-tight text-[var(--ink)] mb-1.5">
-            Concorra a R$ 100 via PIX
+            Concorra a R$ 200 via PIX
           </p>
           <p className="text-[14px] text-[var(--ink-soft)] leading-relaxed">
             Quem responder e deixar o WhatsApp ao final entra no sorteio.

@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     const blocked = !!body.blocked;
 
     const age = answers.P0 ?? null;
-    const city = answers.F1 ?? null;
+    const city = answers.P_CIDADE ?? answers.F1 ?? null;
     const whatsapp = answers.F2 ?? null;
 
     const ua = req.headers.get('user-agent') || null;

@@ -184,6 +184,25 @@ button.btn-cta,
   background: var(--ink);
 }
 
+.indicator-square {
+  width: 18px; height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid var(--border-strong);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+  background: var(--surface);
+  color: var(--ink);
+}
+.option:hover .indicator-square { border-color: var(--ink); }
+.option.selected .indicator-square {
+  border-color: white;
+  background: white;
+  color: var(--ink);
+}
+
 /* ───────── Scale ───────── */
 .scale-btn {
   border: 1px solid var(--border);

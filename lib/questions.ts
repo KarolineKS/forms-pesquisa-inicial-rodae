@@ -2,7 +2,7 @@ export type Option = { value: string; label: string; blocking?: boolean };
 
 export type Question = {
   id: string;
-  type: 'single' | 'scale' | 'textarea' | 'text' | 'tel';
+  type: 'single' | 'multi' | 'scale' | 'textarea' | 'text' | 'tel';
   text: string;
   subtext?: string;
   options?: Option[];
@@ -12,7 +12,9 @@ export type Question = {
 };
 
 export const QUESTIONS: Question[] = [
-  // ============= FILTRO INICIAL =============
+  // ============================================================================
+  // FILTRO INICIAL + CONTEXTO
+  // ============================================================================
   {
     id: 'P0',
     type: 'single',
@@ -27,20 +29,57 @@ export const QUESTIONS: Question[] = [
     ],
   },
   {
+    id: 'P_CIDADE',
+    type: 'text',
+    text: 'Em qual cidade você mora?',
+    placeholder: 'Ex: Pelotas, Santa Maria, Capão do Leão',
+  },
+  {
     id: 'P1',
     type: 'single',
     text: 'Qual destas situações mais combina com sua rotina hoje?',
     options: [
       { value: 'app_transporte', label: 'Trabalho com aplicativo de transporte (Uber, 99, InDriver)' },
       { value: 'delivery', label: 'Trabalho com delivery (iFood, Rappi, Loggi)' },
-      { value: 'trabalho_profissional', label: 'Uso veículo para trabalho ou profissão' },
+      { value: 'trabalho_profissional', label: 'Uso veículo para trabalho ou profissão (representante, técnico, autônomo, etc)' },
       { value: 'viajante', label: 'Viajo de vez em quando, a passeio ou a trabalho' },
       { value: 'nao_dirige', label: 'Não dirijo no dia a dia' },
       { value: 'outro', label: 'Outro' },
     ],
   },
 
-  // ============= BRANCH PROFISSIONAL =============
+  // ============================================================================
+  // BRANCH PROFISSIONAL APP (Uber/99/InDriver + iFood/Rappi/Loggi)
+  // ============================================================================
+  {
+    id: 'PR_APPS',
+    type: 'multi',
+    text: 'Em quais aplicativos você trabalha hoje?',
+    subtext: 'Pode marcar mais de um',
+    showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1),
+    options: [
+      { value: 'uber', label: 'Uber' },
+      { value: '99', label: '99' },
+      { value: 'indriver', label: 'InDriver' },
+      { value: 'ifood', label: 'iFood' },
+      { value: 'rappi', label: 'Rappi' },
+      { value: 'loggi', label: 'Loggi' },
+      { value: 'outro_app', label: 'Outro aplicativo' },
+    ],
+  },
+  {
+    id: 'PR_TIPO',
+    type: 'single',
+    text: 'Você trabalha principalmente com:',
+    showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1),
+    options: [
+      { value: 'carro', label: 'Carro' },
+      { value: 'moto', label: 'Moto' },
+      { value: 'bike', label: 'Bicicleta (comum ou elétrica)' },
+      { value: 'patinete', label: 'Patinete' },
+      { value: 'misto', label: 'Mais de um (varia conforme o dia/serviço)' },
+    ],
+  },
   {
     id: 'PR0',
     type: 'single',
@@ -57,22 +96,37 @@ export const QUESTIONS: Question[] = [
     id: 'PR1',
     type: 'single',
     text: 'O veículo que você usa para trabalhar é:',
-    showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1),
+    showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1) && !['bike', 'patinete'].includes(a.PR_TIPO),
     options: [
       { value: 'proprio_quitado', label: 'Próprio e quitado' },
       { value: 'proprio_financiado', label: 'Próprio mas ainda financiado' },
-      { value: 'alugado_plataforma', label: 'Alugado de plataforma especializada (Kovi, Mottu, Localiza Meoo, etc)' },
-      { value: 'alugado_locadora', label: 'Alugado de locadora tradicional (Localiza, Movida, Unidas, etc)' },
+      { value: 'alugado_pelo_app', label: 'Alugado pelo próprio app (Uber Aluguel, 99Aluga, iFood Aluguel)' },
+      { value: 'alugado_plataforma', label: 'Alugado de plataforma especializada (Kovi, Mottu, Localiza Meoo)' },
+      { value: 'alugado_locadora', label: 'Alugado de locadora tradicional (Localiza, Movida, Unidas, locadora local)' },
       { value: 'alugado_particular', label: 'Alugado de pessoa particular (Facebook, indicação)' },
       { value: 'emprestado', label: 'Emprestado de família ou amigo' },
       { value: 'outro', label: 'Outro' },
     ],
   },
   {
+    id: 'PR_BIKE',
+    type: 'single',
+    text: 'A bicicleta ou patinete que você usa é:',
+    showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1) && ['bike', 'patinete'].includes(a.PR_TIPO),
+    options: [
+      { value: 'proprio_comum', label: 'Própria, comum (sem motor elétrico)' },
+      { value: 'proprio_eletrica', label: 'Própria, elétrica' },
+      { value: 'alugada_eletrica', label: 'Alugada, elétrica (iFood Pedal, Tembici, etc)' },
+      { value: 'alugada_comum', label: 'Alugada, comum' },
+      { value: 'outro', label: 'Outro' },
+    ],
+  },
+  {
     id: 'PR_GASTO',
     type: 'single',
-    text: 'Em média, quanto você gasta POR MÊS com o veículo do trabalho? (combustível + manutenção + aluguel ou parcela)',
-    showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1),
+    text: 'Em média, quanto você gasta POR MÊS com o veículo do trabalho?',
+    subtext: 'Considere combustível, manutenção, aluguel ou parcela',
+    showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1) && !['bike', 'patinete'].includes(a.PR_TIPO),
     options: [
       { value: 'ate800', label: 'Até R$ 800' },
       { value: '800-1500', label: 'R$ 800 a R$ 1.500' },
@@ -88,7 +142,7 @@ export const QUESTIONS: Question[] = [
     id: 'PR2_freq',
     type: 'single',
     text: 'Você aluga em que frequência?',
-    showIf: (a) => ['alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
+    showIf: (a) => ['alugado_pelo_app', 'alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
     options: [
       { value: 'diaria', label: 'Diária' },
       { value: 'semanal', label: 'Semanal' },
@@ -100,45 +154,25 @@ export const QUESTIONS: Question[] = [
     id: 'PR2_nota',
     type: 'scale',
     text: 'De 0 a 10, como é sua experiência alugando esse veículo para trabalhar?',
-    showIf: (a) => ['alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
+    showIf: (a) => ['alugado_pelo_app', 'alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
   },
   {
     id: 'PR2_dor',
     type: 'textarea',
     text: 'O que mais te incomoda hoje no processo de alugar veículo para trabalhar?',
-    showIf: (a) => ['alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
+    showIf: (a) => ['alugado_pelo_app', 'alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
     placeholder: 'Conta com suas palavras, fica à vontade...',
   },
   {
     id: 'PR2_trocou',
     type: 'single',
-    text: 'Você já trocou de fornecedor (locadora/plataforma) nos últimos 12 meses?',
-    showIf: (a) => ['alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
+    text: 'Você já trocou de fornecedor (locadora ou plataforma) nos últimos 12 meses?',
+    showIf: (a) => ['alugado_pelo_app', 'alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
     options: [
       { value: 'sim_1', label: 'Sim, 1 vez' },
       { value: 'sim_2plus', label: 'Sim, 2 ou mais vezes' },
       { value: 'pensei', label: 'Não troquei, mas pensei em trocar' },
       { value: 'nao', label: 'Não, estou satisfeito' },
-    ],
-  },
-  {
-    id: 'PR2_ideal',
-    type: 'textarea',
-    text: 'Se você pudesse melhorar UMA coisa no aluguel hoje, o que seria?',
-    showIf: (a) => ['alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
-    placeholder: 'Pode ser preço, processo, atendimento, app, qualquer coisa...',
-  },
-  {
-    id: 'PR_ELETRICO_aluga',
-    type: 'single',
-    text: 'Você já pensou em alugar veículo ELÉTRICO para trabalhar?',
-    showIf: (a) => ['alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
-    options: [
-      { value: 'ja_uso', label: 'Já uso elétrico' },
-      { value: 'sim_consideraria', label: 'Sim, e consideraria seriamente' },
-      { value: 'curioso', label: 'Tenho curiosidade, mas tenho dúvidas' },
-      { value: 'nao_funciona', label: 'Não, não funciona pra minha rotina' },
-      { value: 'nunca_pensei', label: 'Nunca pensei nisso' },
     ],
   },
 
@@ -170,21 +204,147 @@ export const QUESTIONS: Question[] = [
       { value: 'nunca', label: 'Não, jamais alugaria' },
     ],
   },
+
+  // === Pergunta de churn ===
   {
-    id: 'PR_ELETRICO_proprio',
+    id: 'PR_CHURN',
     type: 'single',
-    text: 'Você já pensou em trocar seu veículo por um ELÉTRICO?',
-    showIf: (a) => ['proprio_quitado', 'proprio_financiado'].includes(a.PR1) && ['app_transporte', 'delivery'].includes(a.P1),
+    text: 'Você já pensou em parar de trabalhar com aplicativo por causa do custo do veículo?',
+    showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1),
     options: [
-      { value: 'ja_uso', label: 'Já uso elétrico' },
-      { value: 'sim_consideraria', label: 'Sim, consideraria' },
-      { value: 'curioso', label: 'Tenho curiosidade, mas tenho dúvidas' },
-      { value: 'nao_funciona', label: 'Não funciona pra minha rotina' },
-      { value: 'nunca_pensei', label: 'Nunca pensei nisso' },
+      { value: 'sim_seguido', label: 'Sim, penso nisso com frequência' },
+      { value: 'sim_as_vezes', label: 'Sim, às vezes' },
+      { value: 'pensei_uma_vez', label: 'Pensei uma vez ou outra' },
+      { value: 'nunca', label: 'Nunca pensei nisso' },
     ],
   },
 
-  // ============= P2 (PULA quem é profissional) =============
+  // === Bloco elétrico personalizado ===
+  // MOTO ELÉTRICA
+  {
+    id: 'PR_ELETRICO_MOTO',
+    type: 'single',
+    text: 'Você já pensou em usar uma MOTO ELÉTRICA para trabalhar?',
+    showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1) && a.PR_TIPO === 'moto',
+    options: [
+      { value: 'ja_uso', label: 'Já uso moto elétrica' },
+      { value: 'sim_consideraria', label: 'Sim, consideraria seriamente' },
+      { value: 'curioso', label: 'Tenho curiosidade, mas tenho dúvidas' },
+      { value: 'nao_funciona', label: 'Não, não funciona pra minha rotina' },
+      { value: 'nunca_pensei', label: 'Nunca pensei nisso' },
+    ],
+  },
+  {
+    id: 'PR_ELETRICO_MOTO_RECEIO',
+    type: 'multi',
+    text: 'O que mais te preocuparia ao trocar para uma moto elétrica?',
+    subtext: 'Pode marcar mais de um',
+    showIf: (a) =>
+      ['app_transporte', 'delivery'].includes(a.P1) &&
+      a.PR_TIPO === 'moto' &&
+      ['sim_consideraria', 'curioso', 'nao_funciona', 'nunca_pensei'].includes(a.PR_ELETRICO_MOTO),
+    options: [
+      { value: 'onde_carregar', label: 'Onde recarregar (não tenho garagem, não sei onde tem ponto)' },
+      { value: 'tempo_carga', label: 'Tempo de recarga atrapalhar o trabalho' },
+      { value: 'autonomia', label: 'Não saber se a autonomia aguenta um dia inteiro' },
+      { value: 'preco', label: 'Preço da moto ou do aluguel ser mais alto' },
+      { value: 'manutencao', label: 'Não confio na manutenção (mecânicos não sabem mexer)' },
+      { value: 'durabilidade', label: 'Durabilidade da bateria a longo prazo' },
+      { value: 'seguro', label: 'Seguro/garantia em caso de problema' },
+      { value: 'desempenho', label: 'Desempenho (potência, velocidade)' },
+      { value: 'nada', label: 'Nada me preocupa, eu trocaria fácil' },
+    ],
+  },
+
+  // CARRO ELÉTRICO
+  {
+    id: 'PR_ELETRICO_CARRO',
+    type: 'single',
+    text: 'Você já pensou em usar um CARRO ELÉTRICO para trabalhar?',
+    showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1) && a.PR_TIPO === 'carro',
+    options: [
+      { value: 'ja_uso', label: 'Já uso carro elétrico' },
+      { value: 'sim_consideraria', label: 'Sim, consideraria seriamente' },
+      { value: 'curioso', label: 'Tenho curiosidade, mas tenho dúvidas' },
+      { value: 'nao_funciona', label: 'Não, não funciona pra minha rotina' },
+      { value: 'nunca_pensei', label: 'Nunca pensei nisso' },
+    ],
+  },
+  {
+    id: 'PR_ELETRICO_CARRO_RECEIO',
+    type: 'multi',
+    text: 'O que mais te preocuparia ao trocar para um carro elétrico?',
+    subtext: 'Pode marcar mais de um',
+    showIf: (a) =>
+      ['app_transporte', 'delivery'].includes(a.P1) &&
+      a.PR_TIPO === 'carro' &&
+      ['sim_consideraria', 'curioso', 'nao_funciona', 'nunca_pensei'].includes(a.PR_ELETRICO_CARRO),
+    options: [
+      { value: 'onde_carregar', label: 'Onde recarregar (não tenho garagem, postos longe)' },
+      { value: 'tempo_carga', label: 'Tempo de recarga atrapalhar as corridas' },
+      { value: 'autonomia', label: 'Autonomia não aguentar um dia inteiro' },
+      { value: 'preco', label: 'Preço do carro ou do aluguel ser mais alto' },
+      { value: 'manutencao', label: 'Manutenção (mecânicos, peças caras)' },
+      { value: 'durabilidade', label: 'Durabilidade da bateria a longo prazo' },
+      { value: 'seguro', label: 'Seguro mais caro ou complicado' },
+      { value: 'revenda', label: 'Dificuldade de revender depois' },
+      { value: 'nada', label: 'Nada me preocupa, eu trocaria fácil' },
+    ],
+  },
+
+  // ============================================================================
+  // BRANCH PROFISSIONAL NÃO-APP
+  // ============================================================================
+  {
+    id: 'PROF_VEICULO',
+    type: 'single',
+    text: 'Que tipo de veículo você usa principalmente para trabalho?',
+    showIf: (a) => a.P1 === 'trabalho_profissional',
+    options: [
+      { value: 'carro', label: 'Carro' },
+      { value: 'moto', label: 'Moto' },
+      { value: 'utilitario', label: 'Utilitário ou van (Kangoo, Doblo, Fiorino)' },
+      { value: 'pickup', label: 'Caminhonete ou pickup' },
+      { value: 'caminhao', label: 'Caminhão pequeno' },
+    ],
+  },
+  {
+    id: 'PROF_FONTE',
+    type: 'single',
+    text: 'Esse veículo é:',
+    showIf: (a) => a.P1 === 'trabalho_profissional',
+    options: [
+      { value: 'proprio', label: 'Próprio' },
+      { value: 'empresa', label: 'Da empresa onde trabalho' },
+      { value: 'alugado', label: 'Alugado' },
+      { value: 'misto', label: 'Depende do dia (uso o meu e às vezes alugo)' },
+    ],
+  },
+  {
+    id: 'PROF_FALTA',
+    type: 'single',
+    text: 'Quando seu veículo quebra ou precisa de manutenção, o que você costuma fazer?',
+    showIf: (a) => a.P1 === 'trabalho_profissional' && ['proprio', 'misto'].includes(a.PROF_FONTE),
+    options: [
+      { value: 'aluga_locadora', label: 'Alugo em uma locadora' },
+      { value: 'empresta', label: 'Pego emprestado com alguém' },
+      { value: 'uber', label: 'Uso Uber/99 enquanto resolve' },
+      { value: 'remarca', label: 'Remarco compromissos ou trabalho de casa' },
+      { value: 'nunca_aconteceu', label: 'Nunca passei por isso' },
+      { value: 'outro', label: 'Outro' },
+    ],
+  },
+  {
+    id: 'PROF_DOR',
+    type: 'textarea',
+    text: 'Qual a maior dificuldade que você enfrenta hoje com o veículo do trabalho?',
+    showIf: (a) => a.P1 === 'trabalho_profissional',
+    placeholder: 'Conta com suas palavras...',
+  },
+
+  // ============================================================================
+  // P2 (só pra quem NÃO é profissional de app)
+  // ============================================================================
   {
     id: 'P2',
     type: 'single',
@@ -198,7 +358,9 @@ export const QUESTIONS: Question[] = [
     ],
   },
 
-  // ============= FLUXO A - CARRO =============
+  // ============================================================================
+  // FLUXO A - CARRO
+  // ============================================================================
   {
     id: 'A1',
     type: 'single',
@@ -244,7 +406,8 @@ export const QUESTIONS: Question[] = [
     id: 'A_gasto',
     type: 'single',
     text: 'Quanto você gastou no total nessa situação?',
-    showIf: (a) => ['carro', 'ambos'].includes(a.P2) && a.A1 !== 'nunca' && a.A2 !== 'desisti' && a.A2 !== 'emprestado',
+    showIf: (a) =>
+      ['carro', 'ambos'].includes(a.P2) && a.A1 !== 'nunca' && !['desisti', 'emprestado'].includes(a.A2),
     options: [
       { value: 'ate200', label: 'Até R$ 200' },
       { value: '200-500', label: 'R$ 200 a R$ 500' },
@@ -315,7 +478,9 @@ export const QUESTIONS: Question[] = [
     placeholder: 'Opcional',
   },
 
-  // ============= FLUXO B - MOTO =============
+  // ============================================================================
+  // FLUXO B - MOTO
+  // ============================================================================
   {
     id: 'B1',
     type: 'single',
@@ -329,17 +494,49 @@ export const QUESTIONS: Question[] = [
     ],
   },
   {
+    id: 'B_motivo',
+    type: 'single',
+    text: 'Para que você precisou da moto?',
+    showIf: (a) => ['moto', 'ambos'].includes(a.P2) && a.B1 !== 'nunca',
+    options: [
+      { value: 'locomocao', label: 'Locomoção do dia a dia' },
+      { value: 'trabalho_temp', label: 'Trabalho temporário (delivery, etc)' },
+      { value: 'viagem', label: 'Viagem a passeio' },
+      { value: 'moto_oficina', label: 'Moto própria na oficina' },
+      { value: 'experimentar', label: 'Experimentar antes de comprar' },
+      { value: 'outro', label: 'Outro' },
+    ],
+  },
+  {
     id: 'B2',
     type: 'single',
     text: 'O que você fez nessa situação?',
     showIf: (a) => ['moto', 'ambos'].includes(a.P2) && a.B1 !== 'nunca',
     options: [
       { value: 'locadora_local', label: 'Aluguei em locadora local' },
-      { value: 'plataforma', label: 'Aluguei em plataforma (Mottu, etc)' },
+      { value: 'plataforma', label: 'Aluguei em plataforma especializada (Mottu, Kovi)' },
+      { value: 'particular', label: 'Aluguei com particular (Facebook, indicação)' },
       { value: 'emprestado', label: 'Peguei emprestado' },
-      { value: 'comprei', label: 'Comprei uma moto' },
+      { value: 'comprei', label: 'Acabei comprando uma moto' },
       { value: 'desisti', label: 'Desisti' },
       { value: 'outro', label: 'Outro' },
+    ],
+  },
+  {
+    id: 'B_gasto',
+    type: 'single',
+    text: 'Quanto você gastou no total nessa situação?',
+    showIf: (a) =>
+      ['moto', 'ambos'].includes(a.P2) &&
+      a.B1 !== 'nunca' &&
+      !['desisti', 'emprestado', 'comprei'].includes(a.B2),
+    options: [
+      { value: 'ate100', label: 'Até R$ 100' },
+      { value: '100-300', label: 'R$ 100 a R$ 300' },
+      { value: '300-600', label: 'R$ 300 a R$ 600' },
+      { value: '600-1200', label: 'R$ 600 a R$ 1.200' },
+      { value: '1200+', label: 'Mais de R$ 1.200' },
+      { value: 'nao_lembro', label: 'Não lembro' },
     ],
   },
   {
@@ -371,13 +568,29 @@ export const QUESTIONS: Question[] = [
   {
     id: 'B4',
     type: 'single',
-    text: 'Se fosse alugar moto, preferiria elétrica ou combustão?',
+    text: 'Se fosse alugar moto, você preferiria elétrica ou combustão?',
     showIf: (a) => ['moto', 'ambos'].includes(a.P2),
     options: [
       { value: 'eletrica', label: 'Elétrica' },
       { value: 'combustao', label: 'Combustão (gasolina)' },
       { value: 'tanto_faz', label: 'Tanto faz, depende do preço' },
       { value: 'nunca_pensei', label: 'Nunca pensei nisso' },
+    ],
+  },
+  {
+    id: 'B4_RECEIO',
+    type: 'multi',
+    text: 'O que mais te preocuparia ao alugar uma moto ELÉTRICA?',
+    subtext: 'Pode marcar mais de um',
+    showIf: (a) => ['moto', 'ambos'].includes(a.P2) && a.B4 !== 'combustao',
+    options: [
+      { value: 'onde_carregar', label: 'Onde recarregar (não saber pontos de recarga)' },
+      { value: 'tempo_carga', label: 'Tempo de recarga' },
+      { value: 'autonomia', label: 'Autonomia (quanto roda com uma carga)' },
+      { value: 'preco', label: 'Preço do aluguel ser mais alto' },
+      { value: 'manutencao', label: 'Manutenção/assistência se der problema' },
+      { value: 'desempenho', label: 'Desempenho (potência, velocidade)' },
+      { value: 'nada', label: 'Nada me preocupa' },
     ],
   },
   {
@@ -394,8 +607,22 @@ export const QUESTIONS: Question[] = [
       { value: 'sem_ideia', label: 'Nem saberia onde começar' },
     ],
   },
+  {
+    id: 'B_desistencia',
+    type: 'single',
+    text: 'Nos últimos 12 meses, quantas vezes você pesquisou para alugar moto e desistiu sem fechar?',
+    showIf: (a) => ['moto', 'ambos'].includes(a.P2),
+    options: [
+      { value: 'nenhuma', label: 'Nenhuma' },
+      { value: '1', label: '1 vez' },
+      { value: '2-3', label: '2 a 3 vezes' },
+      { value: '4+', label: '4 ou mais' },
+    ],
+  },
 
-  // ============= FLUXO C - NÃO INTERESSADO =============
+  // ============================================================================
+  // FLUXO C - NÃO INTERESSADO
+  // ============================================================================
   {
     id: 'C1',
     type: 'single',
@@ -418,12 +645,16 @@ export const QUESTIONS: Question[] = [
     placeholder: 'Escreva com suas palavras...',
   },
 
-  // ============= FECHAMENTO =============
+  // ============================================================================
+  // FECHAMENTO
+  // ============================================================================
   {
-    id: 'F1',
-    type: 'text',
-    text: 'Em qual cidade você mora?',
-    placeholder: 'Ex: Pelotas, Santa Maria, Capão do Leão',
+    id: 'F2',
+    type: 'tel',
+    text: 'Deixe seu WhatsApp para concorrer ao PIX de R$ 200',
+    subtext: 'Sorteio no dia 23/05. O WhatsApp será usado apenas para avisar o vencedor.',
+    optional: true,
+    placeholder: '(53) 99999-9999',
   },
   {
     id: 'F_ABERTO',
@@ -432,13 +663,5 @@ export const QUESTIONS: Question[] = [
     subtext: 'Pode ser uma história, uma reclamação, uma ideia, o que vier. Fica à vontade.',
     optional: true,
     placeholder: 'Opcional, mas se algo vier na cabeça, escreve aqui...',
-  },
-  {
-    id: 'F2',
-    type: 'tel',
-    text: 'Deixe seu WhatsApp para concorrer ao PIX de R$ 100',
-    subtext: 'Sorteio no dia 23/05. O WhatsApp será usado apenas para avisar o vencedor.',
-    optional: true,
-    placeholder: '(53) 99999-9999',
   },
 ];

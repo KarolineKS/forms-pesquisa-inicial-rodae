@@ -1,10 +1,12 @@
 {
   "title": "Pesquisa sobre Hábitos de Uso de Veículos (Carros e Motos)",
   "raffle": {
-    "prize": "PIX de R$ 100",
+    "prize": "PIX de R$ 200",
     "date": "2026-05-23"
   },
   "questions": [
+    { "_section": "FILTRO INICIAL + CONTEXTO" },
+
     {
       "id": "P0",
       "type": "single",
@@ -19,21 +21,56 @@
       ]
     },
     {
+      "id": "P_CIDADE",
+      "type": "text",
+      "text": "Em qual cidade você mora?",
+      "placeholder": "Ex: Pelotas, Santa Maria, Capão do Leão"
+    },
+    {
       "id": "P1",
       "type": "single",
       "text": "Qual destas situações mais combina com sua rotina hoje?",
       "options": [
         { "value": "app_transporte", "label": "Trabalho com aplicativo de transporte (Uber, 99, InDriver)" },
         { "value": "delivery", "label": "Trabalho com delivery (iFood, Rappi, Loggi)" },
-        { "value": "trabalho_profissional", "label": "Uso veículo para trabalho ou profissão" },
+        { "value": "trabalho_profissional", "label": "Uso veículo para trabalho ou profissão (representante, técnico, autônomo, etc)" },
         { "value": "viajante", "label": "Viajo de vez em quando, a passeio ou a trabalho" },
         { "value": "nao_dirige", "label": "Não dirijo no dia a dia" },
         { "value": "outro", "label": "Outro" }
       ]
     },
 
-    { "_section": "BRANCH PROFISSIONAL" },
+    { "_section": "BRANCH PROFISSIONAL APP" },
 
+    {
+      "id": "PR_APPS",
+      "type": "multi",
+      "text": "Em quais aplicativos você trabalha hoje?",
+      "subtext": "Pode marcar mais de um",
+      "showIf": { "P1": ["app_transporte", "delivery"] },
+      "options": [
+        { "value": "uber", "label": "Uber" },
+        { "value": "99", "label": "99" },
+        { "value": "indriver", "label": "InDriver" },
+        { "value": "ifood", "label": "iFood" },
+        { "value": "rappi", "label": "Rappi" },
+        { "value": "loggi", "label": "Loggi" },
+        { "value": "outro_app", "label": "Outro aplicativo" }
+      ]
+    },
+    {
+      "id": "PR_TIPO",
+      "type": "single",
+      "text": "Você trabalha principalmente com:",
+      "showIf": { "P1": ["app_transporte", "delivery"] },
+      "options": [
+        { "value": "carro", "label": "Carro" },
+        { "value": "moto", "label": "Moto" },
+        { "value": "bike", "label": "Bicicleta (comum ou elétrica)" },
+        { "value": "patinete", "label": "Patinete" },
+        { "value": "misto", "label": "Mais de um (varia conforme o dia/serviço)" }
+      ]
+    },
     {
       "id": "PR0",
       "type": "single",
@@ -50,22 +87,37 @@
       "id": "PR1",
       "type": "single",
       "text": "O veículo que você usa para trabalhar é:",
-      "showIf": { "P1": ["app_transporte", "delivery"] },
+      "showIf": { "P1": ["app_transporte", "delivery"], "PR_TIPO": { "notIn": ["bike", "patinete"] } },
       "options": [
         { "value": "proprio_quitado", "label": "Próprio e quitado" },
         { "value": "proprio_financiado", "label": "Próprio mas ainda financiado" },
-        { "value": "alugado_plataforma", "label": "Alugado de plataforma especializada (Kovi, Mottu, Localiza Meoo, etc)" },
-        { "value": "alugado_locadora", "label": "Alugado de locadora tradicional (Localiza, Movida, Unidas, etc)" },
+        { "value": "alugado_pelo_app", "label": "Alugado pelo próprio app (Uber Aluguel, 99Aluga, iFood Aluguel)" },
+        { "value": "alugado_plataforma", "label": "Alugado de plataforma especializada (Kovi, Mottu, Localiza Meoo)" },
+        { "value": "alugado_locadora", "label": "Alugado de locadora tradicional (Localiza, Movida, Unidas, locadora local)" },
         { "value": "alugado_particular", "label": "Alugado de pessoa particular (Facebook, indicação)" },
         { "value": "emprestado", "label": "Emprestado de família ou amigo" },
         { "value": "outro", "label": "Outro" }
       ]
     },
     {
+      "id": "PR_BIKE",
+      "type": "single",
+      "text": "A bicicleta ou patinete que você usa é:",
+      "showIf": { "P1": ["app_transporte", "delivery"], "PR_TIPO": ["bike", "patinete"] },
+      "options": [
+        { "value": "proprio_comum", "label": "Própria, comum (sem motor elétrico)" },
+        { "value": "proprio_eletrica", "label": "Própria, elétrica" },
+        { "value": "alugada_eletrica", "label": "Alugada, elétrica (iFood Pedal, Tembici, etc)" },
+        { "value": "alugada_comum", "label": "Alugada, comum" },
+        { "value": "outro", "label": "Outro" }
+      ]
+    },
+    {
       "id": "PR_GASTO",
       "type": "single",
-      "text": "Em média, quanto você gasta POR MÊS com o veículo do trabalho? (combustível + manutenção + aluguel ou parcela)",
-      "showIf": { "P1": ["app_transporte", "delivery"] },
+      "text": "Em média, quanto você gasta POR MÊS com o veículo do trabalho?",
+      "subtext": "Considere combustível, manutenção, aluguel ou parcela",
+      "showIf": { "P1": ["app_transporte", "delivery"], "PR_TIPO": { "notIn": ["bike", "patinete"] } },
       "options": [
         { "value": "ate800", "label": "Até R$ 800" },
         { "value": "800-1500", "label": "R$ 800 a R$ 1.500" },
@@ -82,7 +134,7 @@
       "id": "PR2_freq",
       "type": "single",
       "text": "Você aluga em que frequência?",
-      "showIf": { "PR1": ["alugado_plataforma", "alugado_locadora", "alugado_particular"] },
+      "showIf": { "PR1": ["alugado_pelo_app", "alugado_plataforma", "alugado_locadora", "alugado_particular"] },
       "options": [
         { "value": "diaria", "label": "Diária" },
         { "value": "semanal", "label": "Semanal" },
@@ -95,45 +147,25 @@
       "type": "scale",
       "scale": { "min": 0, "max": 10, "minLabel": "Péssimo", "maxLabel": "Excelente" },
       "text": "De 0 a 10, como é sua experiência alugando esse veículo para trabalhar?",
-      "showIf": { "PR1": ["alugado_plataforma", "alugado_locadora", "alugado_particular"] }
+      "showIf": { "PR1": ["alugado_pelo_app", "alugado_plataforma", "alugado_locadora", "alugado_particular"] }
     },
     {
       "id": "PR2_dor",
       "type": "textarea",
       "text": "O que mais te incomoda hoje no processo de alugar veículo para trabalhar?",
       "placeholder": "Conta com suas palavras, fica à vontade...",
-      "showIf": { "PR1": ["alugado_plataforma", "alugado_locadora", "alugado_particular"] }
+      "showIf": { "PR1": ["alugado_pelo_app", "alugado_plataforma", "alugado_locadora", "alugado_particular"] }
     },
     {
       "id": "PR2_trocou",
       "type": "single",
-      "text": "Você já trocou de fornecedor (locadora/plataforma) nos últimos 12 meses?",
-      "showIf": { "PR1": ["alugado_plataforma", "alugado_locadora", "alugado_particular"] },
+      "text": "Você já trocou de fornecedor (locadora ou plataforma) nos últimos 12 meses?",
+      "showIf": { "PR1": ["alugado_pelo_app", "alugado_plataforma", "alugado_locadora", "alugado_particular"] },
       "options": [
         { "value": "sim_1", "label": "Sim, 1 vez" },
         { "value": "sim_2plus", "label": "Sim, 2 ou mais vezes" },
         { "value": "pensei", "label": "Não troquei, mas pensei em trocar" },
         { "value": "nao", "label": "Não, estou satisfeito" }
-      ]
-    },
-    {
-      "id": "PR2_ideal",
-      "type": "textarea",
-      "text": "Se você pudesse melhorar UMA coisa no aluguel hoje, o que seria?",
-      "placeholder": "Pode ser preço, processo, atendimento, app, qualquer coisa...",
-      "showIf": { "PR1": ["alugado_plataforma", "alugado_locadora", "alugado_particular"] }
-    },
-    {
-      "id": "PR_ELETRICO_aluga",
-      "type": "single",
-      "text": "Você já pensou em alugar veículo ELÉTRICO para trabalhar?",
-      "showIf": { "PR1": ["alugado_plataforma", "alugado_locadora", "alugado_particular"] },
-      "options": [
-        { "value": "ja_uso", "label": "Já uso elétrico" },
-        { "value": "sim_consideraria", "label": "Sim, e consideraria seriamente" },
-        { "value": "curioso", "label": "Tenho curiosidade, mas tenho dúvidas" },
-        { "value": "nao_funciona", "label": "Não, não funciona pra minha rotina" },
-        { "value": "nunca_pensei", "label": "Nunca pensei nisso" }
       ]
     },
 
@@ -166,21 +198,148 @@
         { "value": "nunca", "label": "Não, jamais alugaria" }
       ]
     },
+
+    { "_section": "Pergunta de churn" },
+
     {
-      "id": "PR_ELETRICO_proprio",
+      "id": "PR_CHURN",
       "type": "single",
-      "text": "Você já pensou em trocar seu veículo por um ELÉTRICO?",
-      "showIf": { "PR1": ["proprio_quitado", "proprio_financiado"], "P1": ["app_transporte", "delivery"] },
+      "text": "Você já pensou em parar de trabalhar com aplicativo por causa do custo do veículo?",
+      "showIf": { "P1": ["app_transporte", "delivery"] },
       "options": [
-        { "value": "ja_uso", "label": "Já uso elétrico" },
-        { "value": "sim_consideraria", "label": "Sim, consideraria" },
-        { "value": "curioso", "label": "Tenho curiosidade, mas tenho dúvidas" },
-        { "value": "nao_funciona", "label": "Não funciona pra minha rotina" },
-        { "value": "nunca_pensei", "label": "Nunca pensei nisso" }
+        { "value": "sim_seguido", "label": "Sim, penso nisso com frequência" },
+        { "value": "sim_as_vezes", "label": "Sim, às vezes" },
+        { "value": "pensei_uma_vez", "label": "Pensei uma vez ou outra" },
+        { "value": "nunca", "label": "Nunca pensei nisso" }
       ]
     },
 
-    { "_section": "P2 (pula quem é profissional)" },
+    { "_section": "Bloco elétrico — MOTO" },
+
+    {
+      "id": "PR_ELETRICO_MOTO",
+      "type": "single",
+      "text": "Você já pensou em usar uma MOTO ELÉTRICA para trabalhar?",
+      "showIf": { "P1": ["app_transporte", "delivery"], "PR_TIPO": ["moto"] },
+      "options": [
+        { "value": "ja_uso", "label": "Já uso moto elétrica" },
+        { "value": "sim_consideraria", "label": "Sim, consideraria seriamente" },
+        { "value": "curioso", "label": "Tenho curiosidade, mas tenho dúvidas" },
+        { "value": "nao_funciona", "label": "Não, não funciona pra minha rotina" },
+        { "value": "nunca_pensei", "label": "Nunca pensei nisso" }
+      ]
+    },
+    {
+      "id": "PR_ELETRICO_MOTO_RECEIO",
+      "type": "multi",
+      "text": "O que mais te preocuparia ao trocar para uma moto elétrica?",
+      "subtext": "Pode marcar mais de um",
+      "showIf": {
+        "P1": ["app_transporte", "delivery"],
+        "PR_TIPO": ["moto"],
+        "PR_ELETRICO_MOTO": ["sim_consideraria", "curioso", "nao_funciona", "nunca_pensei"]
+      },
+      "options": [
+        { "value": "onde_carregar", "label": "Onde recarregar (não tenho garagem, não sei onde tem ponto)" },
+        { "value": "tempo_carga", "label": "Tempo de recarga atrapalhar o trabalho" },
+        { "value": "autonomia", "label": "Não saber se a autonomia aguenta um dia inteiro" },
+        { "value": "preco", "label": "Preço da moto ou do aluguel ser mais alto" },
+        { "value": "manutencao", "label": "Não confio na manutenção (mecânicos não sabem mexer)" },
+        { "value": "durabilidade", "label": "Durabilidade da bateria a longo prazo" },
+        { "value": "seguro", "label": "Seguro/garantia em caso de problema" },
+        { "value": "desempenho", "label": "Desempenho (potência, velocidade)" },
+        { "value": "nada", "label": "Nada me preocupa, eu trocaria fácil" }
+      ]
+    },
+
+    { "_section": "Bloco elétrico — CARRO" },
+
+    {
+      "id": "PR_ELETRICO_CARRO",
+      "type": "single",
+      "text": "Você já pensou em usar um CARRO ELÉTRICO para trabalhar?",
+      "showIf": { "P1": ["app_transporte", "delivery"], "PR_TIPO": ["carro"] },
+      "options": [
+        { "value": "ja_uso", "label": "Já uso carro elétrico" },
+        { "value": "sim_consideraria", "label": "Sim, consideraria seriamente" },
+        { "value": "curioso", "label": "Tenho curiosidade, mas tenho dúvidas" },
+        { "value": "nao_funciona", "label": "Não, não funciona pra minha rotina" },
+        { "value": "nunca_pensei", "label": "Nunca pensei nisso" }
+      ]
+    },
+    {
+      "id": "PR_ELETRICO_CARRO_RECEIO",
+      "type": "multi",
+      "text": "O que mais te preocuparia ao trocar para um carro elétrico?",
+      "subtext": "Pode marcar mais de um",
+      "showIf": {
+        "P1": ["app_transporte", "delivery"],
+        "PR_TIPO": ["carro"],
+        "PR_ELETRICO_CARRO": ["sim_consideraria", "curioso", "nao_funciona", "nunca_pensei"]
+      },
+      "options": [
+        { "value": "onde_carregar", "label": "Onde recarregar (não tenho garagem, postos longe)" },
+        { "value": "tempo_carga", "label": "Tempo de recarga atrapalhar as corridas" },
+        { "value": "autonomia", "label": "Autonomia não aguentar um dia inteiro" },
+        { "value": "preco", "label": "Preço do carro ou do aluguel ser mais alto" },
+        { "value": "manutencao", "label": "Manutenção (mecânicos, peças caras)" },
+        { "value": "durabilidade", "label": "Durabilidade da bateria a longo prazo" },
+        { "value": "seguro", "label": "Seguro mais caro ou complicado" },
+        { "value": "revenda", "label": "Dificuldade de revender depois" },
+        { "value": "nada", "label": "Nada me preocupa, eu trocaria fácil" }
+      ]
+    },
+
+    { "_section": "BRANCH PROFISSIONAL NÃO-APP" },
+
+    {
+      "id": "PROF_VEICULO",
+      "type": "single",
+      "text": "Que tipo de veículo você usa principalmente para trabalho?",
+      "showIf": { "P1": ["trabalho_profissional"] },
+      "options": [
+        { "value": "carro", "label": "Carro" },
+        { "value": "moto", "label": "Moto" },
+        { "value": "utilitario", "label": "Utilitário ou van (Kangoo, Doblo, Fiorino)" },
+        { "value": "pickup", "label": "Caminhonete ou pickup" },
+        { "value": "caminhao", "label": "Caminhão pequeno" }
+      ]
+    },
+    {
+      "id": "PROF_FONTE",
+      "type": "single",
+      "text": "Esse veículo é:",
+      "showIf": { "P1": ["trabalho_profissional"] },
+      "options": [
+        { "value": "proprio", "label": "Próprio" },
+        { "value": "empresa", "label": "Da empresa onde trabalho" },
+        { "value": "alugado", "label": "Alugado" },
+        { "value": "misto", "label": "Depende do dia (uso o meu e às vezes alugo)" }
+      ]
+    },
+    {
+      "id": "PROF_FALTA",
+      "type": "single",
+      "text": "Quando seu veículo quebra ou precisa de manutenção, o que você costuma fazer?",
+      "showIf": { "P1": ["trabalho_profissional"], "PROF_FONTE": ["proprio", "misto"] },
+      "options": [
+        { "value": "aluga_locadora", "label": "Alugo em uma locadora" },
+        { "value": "empresta", "label": "Pego emprestado com alguém" },
+        { "value": "uber", "label": "Uso Uber/99 enquanto resolve" },
+        { "value": "remarca", "label": "Remarco compromissos ou trabalho de casa" },
+        { "value": "nunca_aconteceu", "label": "Nunca passei por isso" },
+        { "value": "outro", "label": "Outro" }
+      ]
+    },
+    {
+      "id": "PROF_DOR",
+      "type": "textarea",
+      "text": "Qual a maior dificuldade que você enfrenta hoje com o veículo do trabalho?",
+      "placeholder": "Conta com suas palavras...",
+      "showIf": { "P1": ["trabalho_profissional"] }
+    },
+
+    { "_section": "P2 (pula quem é profissional de app)" },
 
     {
       "id": "P2",
@@ -329,17 +488,50 @@
       ]
     },
     {
+      "id": "B_motivo",
+      "type": "single",
+      "text": "Para que você precisou da moto?",
+      "showIf": { "P2": ["moto", "ambos"], "B1": { "not": "nunca" } },
+      "options": [
+        { "value": "locomocao", "label": "Locomoção do dia a dia" },
+        { "value": "trabalho_temp", "label": "Trabalho temporário (delivery, etc)" },
+        { "value": "viagem", "label": "Viagem a passeio" },
+        { "value": "moto_oficina", "label": "Moto própria na oficina" },
+        { "value": "experimentar", "label": "Experimentar antes de comprar" },
+        { "value": "outro", "label": "Outro" }
+      ]
+    },
+    {
       "id": "B2",
       "type": "single",
       "text": "O que você fez nessa situação?",
       "showIf": { "P2": ["moto", "ambos"], "B1": { "not": "nunca" } },
       "options": [
         { "value": "locadora_local", "label": "Aluguei em locadora local" },
-        { "value": "plataforma", "label": "Aluguei em plataforma (Mottu, etc)" },
+        { "value": "plataforma", "label": "Aluguei em plataforma especializada (Mottu, Kovi)" },
+        { "value": "particular", "label": "Aluguei com particular (Facebook, indicação)" },
         { "value": "emprestado", "label": "Peguei emprestado" },
-        { "value": "comprei", "label": "Comprei uma moto" },
+        { "value": "comprei", "label": "Acabei comprando uma moto" },
         { "value": "desisti", "label": "Desisti" },
         { "value": "outro", "label": "Outro" }
+      ]
+    },
+    {
+      "id": "B_gasto",
+      "type": "single",
+      "text": "Quanto você gastou no total nessa situação?",
+      "showIf": {
+        "P2": ["moto", "ambos"],
+        "B1": { "not": "nunca" },
+        "B2": { "notIn": ["desisti", "emprestado", "comprei"] }
+      },
+      "options": [
+        { "value": "ate100", "label": "Até R$ 100" },
+        { "value": "100-300", "label": "R$ 100 a R$ 300" },
+        { "value": "300-600", "label": "R$ 300 a R$ 600" },
+        { "value": "600-1200", "label": "R$ 600 a R$ 1.200" },
+        { "value": "1200+", "label": "Mais de R$ 1.200" },
+        { "value": "nao_lembro", "label": "Não lembro" }
       ]
     },
     {
@@ -372,13 +564,29 @@
     {
       "id": "B4",
       "type": "single",
-      "text": "Se fosse alugar moto, preferiria elétrica ou combustão?",
+      "text": "Se fosse alugar moto, você preferiria elétrica ou combustão?",
       "showIf": { "P2": ["moto", "ambos"] },
       "options": [
         { "value": "eletrica", "label": "Elétrica" },
         { "value": "combustao", "label": "Combustão (gasolina)" },
         { "value": "tanto_faz", "label": "Tanto faz, depende do preço" },
         { "value": "nunca_pensei", "label": "Nunca pensei nisso" }
+      ]
+    },
+    {
+      "id": "B4_RECEIO",
+      "type": "multi",
+      "text": "O que mais te preocuparia ao alugar uma moto ELÉTRICA?",
+      "subtext": "Pode marcar mais de um",
+      "showIf": { "P2": ["moto", "ambos"], "B4": { "not": "combustao" } },
+      "options": [
+        { "value": "onde_carregar", "label": "Onde recarregar (não saber pontos de recarga)" },
+        { "value": "tempo_carga", "label": "Tempo de recarga" },
+        { "value": "autonomia", "label": "Autonomia (quanto roda com uma carga)" },
+        { "value": "preco", "label": "Preço do aluguel ser mais alto" },
+        { "value": "manutencao", "label": "Manutenção/assistência se der problema" },
+        { "value": "desempenho", "label": "Desempenho (potência, velocidade)" },
+        { "value": "nada", "label": "Nada me preocupa" }
       ]
     },
     {
@@ -393,6 +601,18 @@
         { "value": "whatsapp", "label": "WhatsApp" },
         { "value": "indicacao", "label": "Indicação pessoal" },
         { "value": "sem_ideia", "label": "Nem saberia onde começar" }
+      ]
+    },
+    {
+      "id": "B_desistencia",
+      "type": "single",
+      "text": "Nos últimos 12 meses, quantas vezes você pesquisou para alugar moto e desistiu sem fechar?",
+      "showIf": { "P2": ["moto", "ambos"] },
+      "options": [
+        { "value": "nenhuma", "label": "Nenhuma" },
+        { "value": "1", "label": "1 vez" },
+        { "value": "2-3", "label": "2 a 3 vezes" },
+        { "value": "4+", "label": "4 ou mais" }
       ]
     },
 
@@ -423,10 +643,12 @@
     { "_section": "FECHAMENTO" },
 
     {
-      "id": "F1",
-      "type": "text",
-      "text": "Em qual cidade você mora?",
-      "placeholder": "Ex: Pelotas, Santa Maria, Capão do Leão"
+      "id": "F2",
+      "type": "tel",
+      "text": "Deixe seu WhatsApp para concorrer ao PIX de R$ 200",
+      "subtext": "Sorteio no dia 23/05. O WhatsApp será usado apenas para avisar o vencedor.",
+      "optional": true,
+      "placeholder": "(53) 99999-9999"
     },
     {
       "id": "F_ABERTO",
@@ -435,14 +657,6 @@
       "subtext": "Pode ser uma história, uma reclamação, uma ideia, o que vier. Fica à vontade.",
       "optional": true,
       "placeholder": "Opcional, mas se algo vier na cabeça, escreve aqui..."
-    },
-    {
-      "id": "F2",
-      "type": "tel",
-      "text": "Deixe seu WhatsApp para concorrer ao PIX de R$ 100",
-      "subtext": "Sorteio no dia 23/05. O WhatsApp será usado apenas para avisar o vencedor.",
-      "optional": true,
-      "placeholder": "(53) 99999-9999"
     }
   ]
 }
