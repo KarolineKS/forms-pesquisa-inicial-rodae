@@ -12,6 +12,7 @@ export type Question = {
 };
 
 export const QUESTIONS: Question[] = [
+  // ============= FILTRO INICIAL =============
   {
     id: 'P0',
     type: 'single',
@@ -38,44 +39,157 @@ export const QUESTIONS: Question[] = [
       { value: 'outro', label: 'Outro' },
     ],
   },
+
+  // ============= BRANCH PROFISSIONAL =============
+  {
+    id: 'PR0',
+    type: 'single',
+    text: 'Há quanto tempo você trabalha com aplicativo?',
+    showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1),
+    options: [
+      { value: 'menos_6m', label: 'Menos de 6 meses' },
+      { value: '6m-2a', label: '6 meses a 2 anos' },
+      { value: '2-5a', label: '2 a 5 anos' },
+      { value: '5a+', label: 'Mais de 5 anos' },
+    ],
+  },
   {
     id: 'PR1',
     type: 'single',
     text: 'O veículo que você usa para trabalhar é:',
     showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1),
     options: [
-      { value: 'proprio', label: 'Próprio' },
-      { value: 'alugado_plataforma', label: 'Alugado de locadora ou plataforma' },
-      { value: 'alugado_particular', label: 'Alugado de pessoa particular' },
+      { value: 'proprio_quitado', label: 'Próprio e quitado' },
+      { value: 'proprio_financiado', label: 'Próprio mas ainda financiado' },
+      { value: 'alugado_plataforma', label: 'Alugado de plataforma especializada (Kovi, Mottu, Localiza Meoo, etc)' },
+      { value: 'alugado_locadora', label: 'Alugado de locadora tradicional' },
+      { value: 'alugado_particular', label: 'Alugado de pessoa particular (Facebook, indicação)' },
       { value: 'emprestado', label: 'Emprestado de família ou amigo' },
       { value: 'outro', label: 'Outro' },
     ],
   },
   {
+    id: 'PR_GASTO',
+    type: 'single',
+    text: 'Em média, quanto você gasta POR MÊS com o veículo do trabalho? (combustível + manutenção + aluguel ou parcela)',
+    showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1),
+    options: [
+      { value: 'ate800', label: 'Até R$ 800' },
+      { value: '800-1500', label: 'R$ 800 a R$ 1.500' },
+      { value: '1500-2500', label: 'R$ 1.500 a R$ 2.500' },
+      { value: '2500-4000', label: 'R$ 2.500 a R$ 4.000' },
+      { value: '4000+', label: 'Mais de R$ 4.000' },
+      { value: 'nao_sei', label: 'Não sei dizer' },
+    ],
+  },
+
+  // === Sub-branch: quem ALUGA pra trabalhar ===
+  {
+    id: 'PR2_freq',
+    type: 'single',
+    text: 'Você aluga em que frequência?',
+    showIf: (a) => ['alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
+    options: [
+      { value: 'diaria', label: 'Diária' },
+      { value: 'semanal', label: 'Semanal' },
+      { value: 'mensal', label: 'Mensal' },
+      { value: 'longa', label: 'Contrato de longa duração (3+ meses)' },
+    ],
+  },
+  {
     id: 'PR2_nota',
     type: 'scale',
-    text: 'De 0 a 10, como é a experiência alugando esse veículo para trabalhar?',
-    showIf: (a) => ['alugado_plataforma', 'alugado_particular'].includes(a.PR1),
+    text: 'De 0 a 10, como é sua experiência alugando esse veículo para trabalhar?',
+    showIf: (a) => ['alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
   },
   {
-    id: 'PR2_texto',
+    id: 'PR2_dor',
     type: 'textarea',
-    text: 'O que pesou nessa nota?',
-    showIf: (a) => ['alugado_plataforma', 'alugado_particular'].includes(a.PR1),
-    placeholder: 'Escreva com suas palavras...',
+    text: 'O que mais te incomoda hoje no processo de alugar veículo para trabalhar?',
+    showIf: (a) => ['alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
+    placeholder: 'Conta com suas palavras, fica à vontade...',
   },
   {
-    id: 'PR3',
-    type: 'textarea',
-    text: 'Já considerou alugar veículo para trabalhar em vez de usar o seu? Se sim, o que te impediu?',
-    showIf: (a) => a.PR1 === 'proprio' && ['app_transporte', 'delivery'].includes(a.P1),
-    optional: true,
-    placeholder: 'Opcional',
+    id: 'PR2_trocou',
+    type: 'single',
+    text: 'Você já trocou de fornecedor (locadora/plataforma) nos últimos 12 meses?',
+    showIf: (a) => ['alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
+    options: [
+      { value: 'sim_1', label: 'Sim, 1 vez' },
+      { value: 'sim_2plus', label: 'Sim, 2 ou mais vezes' },
+      { value: 'pensei', label: 'Não troquei, mas pensei em trocar' },
+      { value: 'nao', label: 'Não, estou satisfeito' },
+    ],
   },
+  {
+    id: 'PR2_ideal',
+    type: 'textarea',
+    text: 'Se você pudesse melhorar UMA coisa no aluguel hoje, o que seria?',
+    showIf: (a) => ['alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
+    placeholder: 'Pode ser preço, processo, atendimento, app, qualquer coisa...',
+  },
+  {
+    id: 'PR_ELETRICO_aluga',
+    type: 'single',
+    text: 'Você já pensou em alugar veículo ELÉTRICO para trabalhar?',
+    showIf: (a) => ['alugado_plataforma', 'alugado_locadora', 'alugado_particular'].includes(a.PR1),
+    options: [
+      { value: 'ja_uso', label: 'Já uso elétrico' },
+      { value: 'sim_consideraria', label: 'Sim, e consideraria seriamente' },
+      { value: 'curioso', label: 'Tenho curiosidade, mas tenho dúvidas' },
+      { value: 'nao_funciona', label: 'Não, não funciona pra minha rotina' },
+      { value: 'nunca_pensei', label: 'Nunca pensei nisso' },
+    ],
+  },
+
+  // === Sub-branch: quem tem PRÓPRIO ===
+  {
+    id: 'PR3_motivo',
+    type: 'single',
+    text: 'Por que você usa veículo próprio em vez de alugar?',
+    showIf: (a) => ['proprio_quitado', 'proprio_financiado'].includes(a.PR1) && ['app_transporte', 'delivery'].includes(a.P1),
+    options: [
+      { value: 'sai_barato', label: 'Sai mais barato no longo prazo' },
+      { value: 'liberdade', label: 'Tenho mais liberdade (usar fora do trabalho, etc)' },
+      { value: 'nao_confio', label: 'Não confio nas locadoras/plataformas' },
+      { value: 'nao_acho', label: 'Não encontrei opção boa na minha cidade' },
+      { value: 'sem_dinheiro_inicial', label: 'Não tenho dinheiro pra caução/entrada' },
+      { value: 'nunca_pensei', label: 'Nunca pensei em alugar' },
+      { value: 'outro', label: 'Outro' },
+    ],
+  },
+  {
+    id: 'PR3_consideraria',
+    type: 'single',
+    text: 'Se aparecesse uma opção boa de aluguel na sua cidade, com preço justo e processo simples, você consideraria?',
+    showIf: (a) => ['proprio_quitado', 'proprio_financiado'].includes(a.PR1) && ['app_transporte', 'delivery'].includes(a.P1),
+    options: [
+      { value: 'sim_claro', label: 'Sim, com certeza testaria' },
+      { value: 'talvez', label: 'Talvez, dependendo das condições' },
+      { value: 'dificilmente', label: 'Dificilmente, prefiro meu próprio' },
+      { value: 'nunca', label: 'Não, jamais alugaria' },
+    ],
+  },
+  {
+    id: 'PR_ELETRICO_proprio',
+    type: 'single',
+    text: 'Você já pensou em trocar seu veículo por um ELÉTRICO?',
+    showIf: (a) => ['proprio_quitado', 'proprio_financiado'].includes(a.PR1) && ['app_transporte', 'delivery'].includes(a.P1),
+    options: [
+      { value: 'ja_uso', label: 'Já uso elétrico' },
+      { value: 'sim_consideraria', label: 'Sim, consideraria' },
+      { value: 'curioso', label: 'Tenho curiosidade, mas tenho dúvidas' },
+      { value: 'nao_funciona', label: 'Não funciona pra minha rotina' },
+      { value: 'nunca_pensei', label: 'Nunca pensei nisso' },
+    ],
+  },
+
+  // ============= P2 (PULA quem é profissional) =============
   {
     id: 'P2',
     type: 'single',
     text: 'Em situações em que você poderia alugar um veículo, o que faz mais sentido?',
+    showIf: (a) => !['app_transporte', 'delivery'].includes(a.P1),
     options: [
       { value: 'carro', label: 'Carro' },
       { value: 'moto', label: 'Moto' },
@@ -83,6 +197,8 @@ export const QUESTIONS: Question[] = [
       { value: 'nenhum', label: 'Não me vejo alugando' },
     ],
   },
+
+  // ============= FLUXO A - CARRO =============
   {
     id: 'A1',
     type: 'single',
@@ -93,6 +209,21 @@ export const QUESTIONS: Question[] = [
       { value: '6m-2a', label: 'Há 6 meses a 2 anos' },
       { value: '2a+', label: 'Há mais de 2 anos' },
       { value: 'nunca', label: 'Nunca' },
+    ],
+  },
+  {
+    id: 'A_motivo',
+    type: 'single',
+    text: 'Para que você precisou do carro?',
+    showIf: (a) => ['carro', 'ambos'].includes(a.P2) && a.A1 !== 'nunca',
+    options: [
+      { value: 'viagem_lazer', label: 'Viagem a passeio' },
+      { value: 'viagem_trabalho', label: 'Viagem a trabalho' },
+      { value: 'mudanca', label: 'Mudança ou transporte de coisas' },
+      { value: 'carro_oficina', label: 'Carro próprio na oficina' },
+      { value: 'evento', label: 'Evento (casamento, festa)' },
+      { value: 'compromisso', label: 'Compromisso profissional pontual' },
+      { value: 'outro', label: 'Outro' },
     ],
   },
   {
@@ -110,6 +241,20 @@ export const QUESTIONS: Question[] = [
     ],
   },
   {
+    id: 'A_gasto',
+    type: 'single',
+    text: 'Quanto você gastou no total nessa situação?',
+    showIf: (a) => ['carro', 'ambos'].includes(a.P2) && a.A1 !== 'nunca' && a.A2 !== 'desisti' && a.A2 !== 'emprestado',
+    options: [
+      { value: 'ate200', label: 'Até R$ 200' },
+      { value: '200-500', label: 'R$ 200 a R$ 500' },
+      { value: '500-1000', label: 'R$ 500 a R$ 1.000' },
+      { value: '1000-2000', label: 'R$ 1.000 a R$ 2.000' },
+      { value: '2000+', label: 'Mais de R$ 2.000' },
+      { value: 'nao_lembro', label: 'Não lembro' },
+    ],
+  },
+  {
     id: 'A3_nota',
     type: 'scale',
     text: 'De 0 a 10, como foi essa experiência?',
@@ -118,9 +263,9 @@ export const QUESTIONS: Question[] = [
   {
     id: 'A3_texto',
     type: 'textarea',
-    text: 'O que pesou nessa nota?',
+    text: 'Por que essa nota?',
     showIf: (a) => ['carro', 'ambos'].includes(a.P2) && a.A1 !== 'nunca',
-    placeholder: 'Escreva com suas palavras...',
+    placeholder: 'Conta com suas palavras...',
   },
   {
     id: 'A3b',
@@ -150,6 +295,18 @@ export const QUESTIONS: Question[] = [
     ],
   },
   {
+    id: 'A_desistencia',
+    type: 'single',
+    text: 'Nos últimos 12 meses, quantas vezes você pesquisou para alugar carro e desistiu sem fechar?',
+    showIf: (a) => ['carro', 'ambos'].includes(a.P2),
+    options: [
+      { value: 'nenhuma', label: 'Nenhuma' },
+      { value: '1', label: '1 vez' },
+      { value: '2-3', label: '2 a 3 vezes' },
+      { value: '4+', label: '4 ou mais' },
+    ],
+  },
+  {
     id: 'A5',
     type: 'textarea',
     text: 'Já pensou em alugar carro alguma vez? Se sim, o que te impediu?',
@@ -157,6 +314,8 @@ export const QUESTIONS: Question[] = [
     optional: true,
     placeholder: 'Opcional',
   },
+
+  // ============= FLUXO B - MOTO =============
   {
     id: 'B1',
     type: 'single',
@@ -192,9 +351,9 @@ export const QUESTIONS: Question[] = [
   {
     id: 'B3_texto',
     type: 'textarea',
-    text: 'O que pesou nessa nota?',
+    text: 'Por que essa nota?',
     showIf: (a) => ['moto', 'ambos'].includes(a.P2) && a.B1 !== 'nunca',
-    placeholder: 'Escreva com suas palavras...',
+    placeholder: 'Conta com suas palavras...',
   },
   {
     id: 'B3b',
@@ -225,7 +384,7 @@ export const QUESTIONS: Question[] = [
     id: 'B5',
     type: 'single',
     text: 'Se hoje precisasse achar uma locadora de moto, onde procuraria primeiro?',
-    showIf: (a) => ['moto', 'ambos'].includes(a.P2) && a.B1 === 'nunca',
+    showIf: (a) => ['moto', 'ambos'].includes(a.P2),
     options: [
       { value: 'google', label: 'Google' },
       { value: 'instagram', label: 'Instagram' },
@@ -235,6 +394,8 @@ export const QUESTIONS: Question[] = [
       { value: 'sem_ideia', label: 'Nem saberia onde começar' },
     ],
   },
+
+  // ============= FLUXO C - NÃO INTERESSADO =============
   {
     id: 'C1',
     type: 'single',
@@ -256,6 +417,8 @@ export const QUESTIONS: Question[] = [
     showIf: (a) => a.P2 === 'nenhum',
     placeholder: 'Escreva com suas palavras...',
   },
+
+  // ============= FECHAMENTO =============
   {
     id: 'F1',
     type: 'text',
@@ -263,10 +426,18 @@ export const QUESTIONS: Question[] = [
     placeholder: 'Ex: Pelotas, Santa Maria, Capão do Leão',
   },
   {
+    id: 'F_ABERTO',
+    type: 'textarea',
+    text: 'Tem mais alguma coisa que você queira contar sobre aluguel de veículos?',
+    subtext: 'Pode ser uma história, uma reclamação, uma ideia, o que vier. Fica à vontade.',
+    optional: true,
+    placeholder: 'Opcional, mas se algo vier na cabeça, escreve aqui...',
+  },
+  {
     id: 'F2',
     type: 'tel',
-    text: 'Deixe seu WhatsApp para concorrer ao PIX de R$ 100 💸',
-    subtext: 'Sorteio no dia 23/05. Vou usar o WhatsApp apenas para avisar o vencedor.',
+    text: 'Deixe seu WhatsApp para concorrer ao PIX de R$ 100',
+    subtext: 'Sorteio no dia 23/05. O WhatsApp será usado apenas para avisar o vencedor.',
     optional: true,
     placeholder: '(53) 99999-9999',
   },
