@@ -20,7 +20,7 @@ export const QUESTIONS: Question[] = [
     type: 'single',
     text: 'Qual é a sua idade?',
     options: [
-      { value: 'menor18', label: 'Menor de 18 anos', blocking: true },
+      { value: 'menor18', label: 'Menor de 18 anos' },
       { value: '18-24', label: '18 a 24 anos' },
       { value: '25-34', label: '25 a 34 anos' },
       { value: '35-44', label: '35 a 44 anos' },
@@ -35,9 +35,142 @@ export const QUESTIONS: Question[] = [
     placeholder: 'Ex: Pelotas, Santa Maria, Capão do Leão',
   },
   {
+    id: 'P_CNH',
+    type: 'single',
+    text: 'Sobre carteira de habilitação, qual sua situação hoje?',
+    options: [
+      { value: 'tenho', label: 'Tenho CNH' },
+      { value: 'tirando', label: 'Estou no processo de tirar a CNH' },
+      { value: 'quero_tirar', label: 'Quero tirar a CNH em breve' },
+      { value: 'nao_tenho_sem_planos', label: 'Não tenho CNH e não pretendo tirar agora' },
+    ],
+  },
+
+  // ============================================================================
+  // BRANCH APRENDIZAGEM (tirando CNH ou quer tirar)
+  // ============================================================================
+  {
+    id: 'CNH_ETAPA',
+    type: 'single',
+    text: 'Em que etapa do processo você está?',
+    showIf: (a) => a.P_CNH === 'tirando',
+    options: [
+      { value: 'aulas_teoricas', label: 'Aulas teóricas / aguardando prova teórica' },
+      { value: 'aulas_praticas', label: 'Fazendo aulas práticas' },
+      { value: 'aguardando_prova', label: 'Aulas concluídas, aguardando prova prática' },
+      { value: 'reprovado', label: 'Reprovado e refazendo aulas' },
+    ],
+  },
+  {
+    id: 'CNH_NOVA_LEI',
+    type: 'single',
+    text: 'Você sabia que com as mudanças da lei do Contran agora é possível fazer aulas práticas com instrutor particular, sem precisar usar só o carro do CFC?',
+    showIf: (a) => ['tirando', 'quero_tirar'].includes(a.P_CNH),
+    options: [
+      { value: 'sim_acompanho', label: 'Sim, acompanho de perto' },
+      { value: 'ouvi_falar', label: 'Ouvi falar mas não conheço os detalhes' },
+      { value: 'nao_sabia', label: 'Não, não sabia disso' },
+    ],
+  },
+  {
+    id: 'CNH_RTO_AULAS',
+    type: 'single',
+    text: 'Se existisse a opção de ALUGAR um carro com instrutor independente para fazer suas aulas práticas, com preço menor que o CFC, você teria interesse?',
+    showIf: (a) => ['tirando', 'quero_tirar'].includes(a.P_CNH),
+    options: [
+      { value: 'sim_certeza', label: 'Sim, com certeza usaria' },
+      { value: 'sim_depende', label: 'Sim, dependendo do preço e da segurança' },
+      { value: 'talvez', label: 'Talvez, preciso entender melhor' },
+      { value: 'prefiro_cfc', label: 'Não, prefiro o método tradicional do CFC' },
+    ],
+  },
+  {
+    id: 'CNH_TREINO',
+    type: 'single',
+    text: 'E DEPOIS de tirar a CNH, você teria interesse em alugar um carro para TREINAR antes de comprar o seu?',
+    showIf: (a) => ['tirando', 'quero_tirar'].includes(a.P_CNH),
+    options: [
+      { value: 'sim_muito', label: 'Sim, com certeza usaria' },
+      { value: 'sim_depende', label: 'Sim, dependendo do preço' },
+      { value: 'tenho_quem_emprestar', label: 'Não preciso, tenho alguém que empresta' },
+      { value: 'vou_comprar_direto', label: 'Vou direto para a compra' },
+      { value: 'nao_dirigirei', label: 'Não pretendo dirigir muito após tirar' },
+    ],
+  },
+  {
+    id: 'CNH_DOR',
+    type: 'textarea',
+    text: 'Qual a maior dificuldade que você tem (ou imagina ter) no processo de tirar a CNH?',
+    showIf: (a) => ['tirando', 'quero_tirar'].includes(a.P_CNH),
+    placeholder: 'Preço, tempo, medo, falta de carro para praticar... conta com suas palavras.',
+  },
+  {
+    id: 'CNH_RTO',
+    type: 'single',
+    text: 'Depois de tirar a CNH, você teria interesse em ALUGAR um veículo com OPÇÃO DE COMPRA no final?',
+    subtext: 'Modelo onde você paga aluguel mensal por um período (ex: 24 meses) e ao final pode ficar com o veículo. Ajuda quem não tem dinheiro para entrada à vista.',
+    showIf: (a) => ['tirando', 'quero_tirar'].includes(a.P_CNH),
+    options: [
+      { value: 'sim_carro_combustao', label: 'Sim, com carro a combustão' },
+      { value: 'sim_carro_eletrico', label: 'Sim, com carro elétrico' },
+      { value: 'sim_moto_combustao', label: 'Sim, com moto a combustão' },
+      { value: 'sim_moto_eletrica', label: 'Sim, com moto elétrica' },
+      { value: 'sim_tanto_faz', label: 'Sim, tanto faz o tipo' },
+      { value: 'talvez', label: 'Talvez, dependendo das condições' },
+      { value: 'nao', label: 'Não tenho interesse' },
+    ],
+  },
+
+  // === Menor de 18 sem CNH ===
+  {
+    id: 'MENOR_CNH',
+    type: 'single',
+    text: 'Você pretende tirar CNH quando completar 18 anos?',
+    showIf: (a) => a.P0 === 'menor18' && a.P_CNH === 'nao_tenho_sem_planos',
+    options: [
+      { value: 'sim_em_breve', label: 'Sim, assim que completar 18' },
+      { value: 'sim_um_dia', label: 'Sim, mas sem pressa' },
+      { value: 'nao', label: 'Não pretendo tirar' },
+      { value: 'nao_pensei', label: 'Ainda não pensei nisso' },
+    ],
+  },
+
+  // === Adulto sem CNH e sem planos ===
+  {
+    id: 'SEM_CNH_MOTIVO',
+    type: 'single',
+    text: 'O que mais pesa na sua decisão de não tirar CNH?',
+    showIf: (a) => a.P0 !== 'menor18' && a.P_CNH === 'nao_tenho_sem_planos',
+    options: [
+      { value: 'caro', label: 'Tirar CNH é caro' },
+      { value: 'nao_preciso', label: 'Não preciso, uso transporte público/apps' },
+      { value: 'medo', label: 'Tenho medo de dirigir' },
+      { value: 'sem_tempo', label: 'Não tenho tempo pro processo' },
+      { value: 'cidade', label: 'Minha cidade não exige carro pro dia a dia' },
+      { value: 'outro', label: 'Outro' },
+    ],
+  },
+  {
+    id: 'SEM_CNH_FUTURO',
+    type: 'single',
+    text: 'Se as condições mudassem (preço, tempo, processo mais fácil), você consideraria tirar?',
+    showIf: (a) => a.P0 !== 'menor18' && a.P_CNH === 'nao_tenho_sem_planos',
+    options: [
+      { value: 'sim_provavel', label: 'Sim, provavelmente tiraria' },
+      { value: 'talvez', label: 'Talvez, dependendo da situação' },
+      { value: 'dificil', label: 'Difícil mudar de ideia' },
+      { value: 'jamais', label: 'Não, jamais tirarei' },
+    ],
+  },
+
+  // ============================================================================
+  // P1 - rotina (só pra quem tem CNH)
+  // ============================================================================
+  {
     id: 'P1',
     type: 'single',
     text: 'Qual destas situações mais combina com sua rotina hoje?',
+    showIf: (a) => !['tirando', 'quero_tirar', 'nao_tenho_sem_planos'].includes(a.P_CNH),
     options: [
       { value: 'app_transporte', label: 'Trabalho com aplicativo de transporte (Uber, 99, InDriver)' },
       { value: 'delivery', label: 'Trabalho com delivery (iFood, Rappi, Loggi)' },
@@ -49,7 +182,7 @@ export const QUESTIONS: Question[] = [
   },
 
   // ============================================================================
-  // BRANCH PROFISSIONAL APP (Uber/99/InDriver + iFood/Rappi/Loggi)
+  // BRANCH PROFISSIONAL APP
   // ============================================================================
   {
     id: 'PR_APPS',
@@ -205,7 +338,7 @@ export const QUESTIONS: Question[] = [
     ],
   },
 
-  // === Pergunta de churn ===
+  // === Churn ===
   {
     id: 'PR_CHURN',
     type: 'single',
@@ -219,8 +352,7 @@ export const QUESTIONS: Question[] = [
     ],
   },
 
-  // === Bloco elétrico personalizado ===
-  // MOTO ELÉTRICA
+  // === Bloco elétrico — MOTO ===
   {
     id: 'PR_ELETRICO_MOTO',
     type: 'single',
@@ -256,7 +388,7 @@ export const QUESTIONS: Question[] = [
     ],
   },
 
-  // CARRO ELÉTRICO
+  // === Bloco elétrico — CARRO ===
   {
     id: 'PR_ELETRICO_CARRO',
     type: 'single',
@@ -296,6 +428,22 @@ export const QUESTIONS: Question[] = [
   // BRANCH PROFISSIONAL NÃO-APP
   // ============================================================================
   {
+    id: 'PROF_PROFISSAO',
+    type: 'single',
+    text: 'Em qual destas áreas você atua?',
+    showIf: (a) => a.P1 === 'trabalho_profissional',
+    options: [
+      { value: 'vendas', label: 'Vendas externas / representante comercial' },
+      { value: 'tecnico', label: 'Serviços técnicos (eletricista, encanador, técnico de campo)' },
+      { value: 'saude', label: 'Saúde (atendimento domiciliar, visitas)' },
+      { value: 'transporte_carga', label: 'Transporte de carga, frete autônomo' },
+      { value: 'motoboy', label: 'Motoboy independente (não-app)' },
+      { value: 'escolar', label: 'Motorista escolar' },
+      { value: 'autonomo_outros', label: 'Outro autônomo / MEI que depende do veículo' },
+      { value: 'outro', label: 'Outro' },
+    ],
+  },
+  {
     id: 'PROF_VEICULO',
     type: 'single',
     text: 'Que tipo de veículo você usa principalmente para trabalho?',
@@ -320,11 +468,41 @@ export const QUESTIONS: Question[] = [
       { value: 'misto', label: 'Depende do dia (uso o meu e às vezes alugo)' },
     ],
   },
+
+  // === Sub-branch: profissional que ALUGA ===
+  {
+    id: 'PROF_ALUGA_ONDE',
+    type: 'single',
+    text: 'Onde você costuma alugar o veículo de trabalho?',
+    showIf: (a) => a.P1 === 'trabalho_profissional' && ['alugado', 'misto'].includes(a.PROF_FONTE),
+    options: [
+      { value: 'locadora_grande', label: 'Locadora grande (Localiza, Movida, Unidas)' },
+      { value: 'locadora_pequena', label: 'Locadora pequena local' },
+      { value: 'particular', label: 'Direto com particular (Facebook, indicação)' },
+      { value: 'plataforma', label: 'Plataforma online (Kovi, Mottu, similar)' },
+      { value: 'varia', label: 'Varia, dependendo da situação' },
+    ],
+  },
+  {
+    id: 'PROF_ALUGA_NOTA',
+    type: 'scale',
+    text: 'De 0 a 10, como é sua experiência alugando para trabalhar?',
+    showIf: (a) => a.P1 === 'trabalho_profissional' && ['alugado', 'misto'].includes(a.PROF_FONTE),
+  },
+  {
+    id: 'PROF_ALUGA_DOR',
+    type: 'textarea',
+    text: 'O que mais te incomoda no processo de alugar veículo pra trabalhar?',
+    showIf: (a) => a.P1 === 'trabalho_profissional' && ['alugado', 'misto'].includes(a.PROF_FONTE),
+    placeholder: 'Conta com suas palavras...',
+  },
+
+  // === Sub-branch: profissional com PRÓPRIO/EMPRESA ===
   {
     id: 'PROF_FALTA',
     type: 'single',
     text: 'Quando seu veículo quebra ou precisa de manutenção, o que você costuma fazer?',
-    showIf: (a) => a.P1 === 'trabalho_profissional' && ['proprio', 'misto'].includes(a.PROF_FONTE),
+    showIf: (a) => a.P1 === 'trabalho_profissional' && ['proprio', 'empresa'].includes(a.PROF_FONTE),
     options: [
       { value: 'aluga_locadora', label: 'Alugo em uma locadora' },
       { value: 'empresta', label: 'Pego emprestado com alguém' },
@@ -334,12 +512,64 @@ export const QUESTIONS: Question[] = [
       { value: 'outro', label: 'Outro' },
     ],
   },
+
+  // === Pergunta geral pra todos os profissionais ===
   {
     id: 'PROF_DOR',
     type: 'textarea',
     text: 'Qual a maior dificuldade que você enfrenta hoje com o veículo do trabalho?',
     showIf: (a) => a.P1 === 'trabalho_profissional',
     placeholder: 'Conta com suas palavras...',
+  },
+  {
+    id: 'PROF_RTO',
+    type: 'single',
+    text: 'Você teria interesse em ALUGAR um veículo com OPÇÃO DE COMPRA no final?',
+    subtext: 'Modelo onde você paga aluguel mensal por um período (ex: 24 meses) e ao final pode ficar com o veículo.',
+    showIf: (a) => a.P1 === 'trabalho_profissional',
+    options: [
+      { value: 'sim_combustao', label: 'Sim, com veículo a combustão (gasolina/etanol)' },
+      { value: 'sim_eletrico', label: 'Sim, com veículo elétrico' },
+      { value: 'sim_tanto_faz', label: 'Sim, tanto faz se elétrico ou combustão' },
+      { value: 'talvez', label: 'Talvez, dependendo das condições' },
+      { value: 'nao', label: 'Não tenho interesse' },
+      { value: 'nunca_ouvi', label: 'Nunca ouvi falar desse modelo' },
+    ],
+  },
+
+  // ============================================================================
+  // RENT-TO-OWN — pra profissionais de app
+  // ============================================================================
+  {
+    id: 'RTO_INTERESSE',
+    type: 'single',
+    text: 'Você teria interesse em ALUGAR um veículo com OPÇÃO DE COMPRA no final?',
+    subtext: 'Modelo onde você paga aluguel mensal por um período (ex: 24 meses) e ao final pode ficar com o veículo.',
+    showIf: (a) => ['app_transporte', 'delivery'].includes(a.P1) && !['bike', 'patinete'].includes(a.PR_TIPO),
+    options: [
+      { value: 'sim_muito', label: 'Sim, tenho muito interesse' },
+      { value: 'sim_depende', label: 'Sim, dependendo das condições (preço, prazo, etc)' },
+      { value: 'curioso', label: 'Tenho curiosidade, mas tenho dúvidas' },
+      { value: 'nao', label: 'Não, prefiro só alugar ou só comprar' },
+      { value: 'nunca_ouvi', label: 'Nunca ouvi falar desse modelo' },
+    ],
+  },
+  {
+    id: 'RTO_TIPO',
+    type: 'multi',
+    text: 'Se fosse alugar com opção de compra, qual modalidade te interessaria?',
+    subtext: 'Pode marcar mais de uma',
+    showIf: (a) =>
+      ['app_transporte', 'delivery'].includes(a.P1) &&
+      !['bike', 'patinete'].includes(a.PR_TIPO) &&
+      ['sim_muito', 'sim_depende', 'curioso'].includes(a.RTO_INTERESSE),
+    options: [
+      { value: 'carro_combustao', label: 'Carro a combustão (gasolina/etanol)' },
+      { value: 'carro_eletrico', label: 'Carro elétrico' },
+      { value: 'moto_combustao', label: 'Moto a combustão (gasolina)' },
+      { value: 'moto_eletrica', label: 'Moto elétrica' },
+      { value: 'tanto_faz', label: 'Tanto faz, depende do que for melhor pra rotina' },
+    ],
   },
 
   // ============================================================================
@@ -467,6 +697,20 @@ export const QUESTIONS: Question[] = [
       { value: '1', label: '1 vez' },
       { value: '2-3', label: '2 a 3 vezes' },
       { value: '4+', label: '4 ou mais' },
+    ],
+  },
+  {
+    id: 'A_RTO',
+    type: 'single',
+    text: 'Você teria interesse em ALUGAR um carro com OPÇÃO DE COMPRA no final?',
+    subtext: 'Modelo onde você paga aluguel mensal por um período (ex: 24 meses) e ao final pode ficar com o carro.',
+    showIf: (a) => ['carro', 'ambos'].includes(a.P2),
+    options: [
+      { value: 'sim_combustao', label: 'Sim, com carro a combustão (gasolina/etanol)' },
+      { value: 'sim_eletrico', label: 'Sim, com carro elétrico' },
+      { value: 'sim_tanto_faz', label: 'Sim, tanto faz se elétrico ou combustão' },
+      { value: 'talvez', label: 'Talvez, dependendo das condições' },
+      { value: 'nao', label: 'Não tenho interesse' },
     ],
   },
   {
@@ -619,6 +863,20 @@ export const QUESTIONS: Question[] = [
       { value: '4+', label: '4 ou mais' },
     ],
   },
+  {
+    id: 'B_RTO',
+    type: 'single',
+    text: 'Você teria interesse em ALUGAR uma moto com OPÇÃO DE COMPRA no final?',
+    subtext: 'Modelo onde você paga aluguel mensal por um período e ao final pode ficar com a moto.',
+    showIf: (a) => ['moto', 'ambos'].includes(a.P2),
+    options: [
+      { value: 'sim_combustao', label: 'Sim, com moto a combustão (gasolina)' },
+      { value: 'sim_eletrica', label: 'Sim, com moto elétrica' },
+      { value: 'sim_tanto_faz', label: 'Sim, tanto faz se elétrica ou combustão' },
+      { value: 'talvez', label: 'Talvez, dependendo das condições' },
+      { value: 'nao', label: 'Não tenho interesse' },
+    ],
+  },
 
   // ============================================================================
   // FLUXO C - NÃO INTERESSADO
@@ -626,23 +884,30 @@ export const QUESTIONS: Question[] = [
   {
     id: 'C1',
     type: 'single',
-    text: 'Por que você não se vê alugando veículo?',
+    text: 'O que mais pesa na sua decisão de não alugar?',
     showIf: (a) => a.P2 === 'nenhum',
     options: [
       { value: 'tem_proprio', label: 'Tenho veículo próprio que atende' },
       { value: 'usa_app', label: 'Uso Uber, 99 e transporte público para tudo' },
-      { value: 'caro', label: 'Acho aluguel caro' },
-      { value: 'complicado', label: 'Acho complicado' },
-      { value: 'nao_confio', label: 'Não confio' },
+      { value: 'caro', label: 'Acho aluguel caro demais' },
+      { value: 'complicado', label: 'Acho o processo complicado/burocrático' },
+      { value: 'nao_confio', label: 'Não confio nas locadoras' },
+      { value: 'experiencia_ruim', label: 'Já tive experiência ruim e não quero repetir' },
       { value: 'outro', label: 'Outro' },
     ],
   },
   {
-    id: 'C2',
-    type: 'textarea',
-    text: 'Se um dia precisar mesmo de um veículo (mudança, viagem, oficina), o que provavelmente faria?',
+    id: 'C_RTO',
+    type: 'single',
+    text: 'E se existisse a opção de alugar um veículo com OPÇÃO DE COMPRA no final, isso mudaria algo pra você?',
+    subtext: 'Modelo onde você paga aluguel mensal e ao final fica com o veículo.',
     showIf: (a) => a.P2 === 'nenhum',
-    placeholder: 'Escreva com suas palavras...',
+    options: [
+      { value: 'sim_mudaria', label: 'Sim, isso mudaria minha visão' },
+      { value: 'talvez', label: 'Talvez, dependendo das condições' },
+      { value: 'nao', label: 'Não, continuo sem interesse' },
+      { value: 'nunca_ouvi', label: 'Nunca ouvi falar desse modelo, preciso entender melhor' },
+    ],
   },
 
   // ============================================================================
